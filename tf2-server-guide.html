@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TF2 Server Setup — GitHub Codespaces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E8631A;
+    --orange-dark: #C04E0E;
+    --orange-glow: rgba(232, 99, 26, 0.18);
+    --bg: #1A1814;
+    --bg2: #221F1A;
+    --bg3: #2A2620;
+    --bg4: #322E27;
+    --text: #EDE8DF;
+    --text-muted: #9A9288;
+    --border: rgba(232, 99, 26, 0.25);
+    --border-dim: rgba(255,255,255,0.07);
+    --red: #CC3B2A;
+    --blu: #3A7EB5;
+    --green: #4A9955;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Diagonal stripe pattern overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 40px,
+      rgba(0,0,0,0.07) 40px,
+      rgba(0,0,0,0.07) 42px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === HEADER === */
+  header {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg2);
+    border-bottom: 2px solid var(--orange);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--orange) 0 40px, var(--bg) 40px 50px);
+  }
+
+  /* hazard stripes bottom */
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--orange) 0 18px, #1A1814 18px 36px);
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    margin-bottom: 1rem;
+    clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0% 50%);
+  }
+
+  h1 {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    color: var(--text);
+    letter-spacing: 1px;
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 var(--orange-dark);
+  }
+
+  h1 span { color: var(--orange); }
+
+  .header-sub {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+
+  .team-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 1.2rem;
+  }
+
+  .tag-red {
+    background: var(--red);
+    color: #fff;
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 12px;
+    padding: 3px 14px;
+    letter-spacing: 2px;
+  }
+
+  .tag-blu {
+    background: var(--blu);
+    color: #fff;
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 12px;
+    padding: 3px 14px;
+    letter-spacing: 2px;
+  }
+
+  /* === MAIN LAYOUT === */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* === STEP CARDS === */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .step-card {
+    position: relative;
+    background: var(--bg2);
+    border: 1px solid var(--border-dim);
+    border-left: 3px solid var(--orange);
+    padding: 1.8rem 1.8rem 1.8rem 5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .step-card:hover {
+    border-left-color: var(--orange);
+    box-shadow: -4px 0 18px var(--orange-glow), inset 0 0 40px rgba(232,99,26,0.03);
+  }
+
+  .step-number {
+    position: absolute;
+    top: 1.6rem;
+    left: 1.25rem;
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 2rem;
+    color: var(--orange);
+    line-height: 1;
+    opacity: 0.85;
+  }
+
+  .step-label {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 0.3rem;
+    opacity: 0.7;
+  }
+
+  .step-title {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 1.25rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.5px;
+  }
+
+  .step-desc {
+    color: #B8B0A4;
+    font-size: 0.97rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .step-desc strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* === CODE BLOCKS === */
+  .code-block {
+    background: #0F0D0B;
+    border: 1px solid var(--border);
+    padding: 0.9rem 1rem 0.9rem 1.2rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .code-block + .code-block { margin-top: 0.4rem; }
+
+  .code-block code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    color: #F0C070;
+    flex: 1;
+    word-break: break-all;
+  }
+
+  .code-block .prompt {
+    color: var(--orange);
+    margin-right: 0.4rem;
+    opacity: 0.8;
+    user-select: none;
+  }
+
+  .copy-btn {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .copy-btn:hover {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+  }
+
+  .copy-btn.copied {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  /* === ACTION BUTTON === */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--orange);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    padding: 0.75rem 1.8rem;
+    border: none;
+    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    transition: background 0.15s, transform 0.1s;
+    margin-top: 0.9rem;
+  }
+
+  .action-btn:hover {
+    background: var(--orange-dark);
+    transform: translateY(-1px);
+  }
+
+  .action-btn svg {
+    width: 18px; height: 18px; flex-shrink: 0;
+  }
+
+  /* === TIP BOX === */
+  .tip {
+    background: rgba(58, 126, 181, 0.1);
+    border: 1px solid rgba(58, 126, 181, 0.3);
+    border-left: 3px solid var(--blu);
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #9DC3E0;
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .tip-icon { flex-shrink: 0; font-size: 1.1rem; line-height: 1.5; }
+
+  /* === WARNING BOX === */
+  .warn {
+    background: rgba(232, 99, 26, 0.08);
+    border: 1px solid rgba(232, 99, 26, 0.2);
+    border-left: 3px solid var(--orange);
+    padding: 0.85rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #D4A882;
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .warn-icon { flex-shrink: 0; font-size: 1.1rem; line-height: 1.5; }
+
+  /* === CONNECTOR LINE === */
+  .connector {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 0 0 2.4rem;
+    height: 2rem;
+  }
+
+  .connector::before {
+    content: '';
+    width: 2px;
+    height: 100%;
+    background: repeating-linear-gradient(to bottom, var(--orange) 0 6px, transparent 6px 12px);
+    opacity: 0.4;
+  }
+
+  /* === SECTION DIVIDER === */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+
+  .divider span {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 4px;
+    color: var(--orange);
+    opacity: 0.6;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-dim);
+  }
+
+  /* === PREREQS === */
+  .prereqs {
+    background: var(--bg2);
+    border: 1px solid var(--border-dim);
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .prereqs-title {
+    font-family: 'Black Ops One', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+
+  .prereq-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .prereq-list li {
+    color: #B8B0A4;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .prereq-list li::before {
+    content: '▶';
+    font-size: 0.55rem;
+    color: var(--orange);
+  }
+
+  /* === FOOTER === */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-dim);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+
+  footer::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: repeating-linear-gradient(90deg, var(--orange) 0 18px, var(--bg) 18px 36px);
+    margin-bottom: 1.5rem;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .step-card {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  .step-card:nth-child(1) { animation-delay: 0.05s; }
+  .step-card:nth-child(2) { animation-delay: 0.15s; }
+  .step-card:nth-child(3) { animation-delay: 0.25s; }
+  .step-card:nth-child(4) { animation-delay: 0.35s; }
+  .step-card:nth-child(5) { animation-delay: 0.45s; }
+
+  /* responsive */
+  @media (max-width: 600px) {
+    .step-card { padding-left: 4rem; }
+    .step-number { font-size: 1.5rem; left: 1rem; }
+    header { padding: 2.5rem 1rem 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Free to Play</div>
+  <h1>Host a <span>TF2 Server</span><br>on GitHub Codespaces</h1>
+  <p class="header-sub">Free cloud compute · No port forwarding · Setup in minutes</p>
+  <div class="team-tags">
+    <div class="tag-red">RED</div>
+    <div class="tag-blu">BLU</div>
+  </div>
+</header>
+
+<main>
+
+  <div class="prereqs" style="margin-top:2rem;">
+    <div class="prereqs-title">⚙ Before You Begin</div>
+    <ul class="prereq-list">
+      <li>A free GitHub account</li>
+      <li>A browser (no installs needed)</li>
+      <li>~5 minutes of your time</li>
+      <li>Team Fortress 2 (obviously)</li>
+    </ul>
+  </div>
+
+  <div class="divider"><span>Setup Steps</span></div>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <div class="step-card">
+      <div class="step-number">01</div>
+      <div class="step-label">Step One</div>
+      <div class="step-title">Create a GitHub Codespace</div>
+      <div class="step-desc">
+        Head to GitHub Codespaces and spin up a new cloud workspace. Use the <strong>default blank template</strong> — no repo needed. GitHub gives you free compute hours every month.
+      </div>
+      <a class="action-btn" href="https://github.com/codespaces/new" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+        </svg>
+        Open Codespaces →
+      </a>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>Choose <strong>4-core</strong> or higher for smoother server performance. The codespace opens a VS Code editor in your browser — no installs required.</span>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- STEP 2 -->
+    <div class="step-card">
+      <div class="step-number">02</div>
+      <div class="step-label">Step Two</div>
+      <div class="step-title">Open the Terminal</div>
+      <div class="step-desc">
+        Once the codespace finishes loading, open the integrated terminal. In VS Code, use the menu <strong>Terminal → New Terminal</strong>, or press the keyboard shortcut below.
+      </div>
+      <div class="code-block">
+        <code><span class="prompt">⌨</span> Ctrl + ` &nbsp;(backtick)</code>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>On Mac, the shortcut is also <strong>Ctrl + `</strong> (not Cmd). You should see a bash shell prompt appear at the bottom of the screen.</span>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- STEP 3 -->
+    <div class="step-card">
+      <div class="step-number">03</div>
+      <div class="step-label">Step Three</div>
+      <div class="step-title">Download the Setup Script</div>
+      <div class="step-desc">
+        In the terminal, run the following command to download the TF2 server setup script directly from the internet. This fetches a pre-configured shell script that handles everything automatically.
+      </div>
+      <div class="code-block">
+        <code><span class="prompt">$</span> wget -O setup.sh https://gist.githubusercontent.com/random-sketchpeak/01460ad613a38d5332b6850cf999dc42/raw/664ead4e0b525ee8d8adfbc829291a91d7d1f44a/setup.sh</code>
+        <button class="copy-btn" onclick="copyCode(this, 'wget -O setup.sh https://gist.githubusercontent.com/random-sketchpeak/01460ad613a38d5332b6850cf999dc42/raw/664ead4e0b525ee8d8adfbc829291a91d7d1f44a/setup.sh')">Copy</button>
+      </div>
+      <div class="warn">
+        <span class="warn-icon">⚠</span>
+        <span>Make sure you get the full URL above — it's long! Using the <strong>Copy</strong> button avoids typos.</span>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- STEP 4 -->
+    <div class="step-card">
+      <div class="step-number">04</div>
+      <div class="step-label">Step Four</div>
+      <div class="step-title">Make it Executable & Run It</div>
+      <div class="step-desc">
+        First, give the script permission to execute. Then launch it. The script will automatically download and configure your TF2 dedicated server — this may take a few minutes.
+      </div>
+      <div class="code-block">
+        <code><span class="prompt">$</span> chmod +x setup.sh</code>
+        <button class="copy-btn" onclick="copyCode(this, 'chmod +x setup.sh')">Copy</button>
+      </div>
+      <div class="code-block">
+        <code><span class="prompt">$</span> ./setup.sh</code>
+        <button class="copy-btn" onclick="copyCode(this, './setup.sh')">Copy</button>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">🚀</span>
+        <span>Sit back and let the script do its thing. It'll download SteamCMD and all required TF2 server files. Watch the terminal output for progress — when it's done, your server address will be displayed.</span>
+      </div>
+    </div>
+
+    <div class="connector"></div>
+
+    <!-- STEP 5 -->
+    <div class="step-card">
+      <div class="step-number">05</div>
+      <div class="step-label">Step Five</div>
+      <div class="step-title">Launch the Server & Connect</div>
+      <div class="step-desc">
+        Once <code style="font-family:'Share Tech Mono',monospace;color:#F0C070;font-size:0.9rem;">setup.sh</code> finishes, it will have created a <strong>start.sh</strong> file. Run it to fire up your TF2 server — it handles the free port-forward automatically using FakeIP.
+      </div>
+      <div class="code-block">
+        <code><span class="prompt">$</span> ./start.sh</code>
+        <button class="copy-btn" onclick="copyCode(this, './start.sh')">Copy</button>
+      </div>
+
+      <!-- FakeIP lookup -->
+      <div style="margin-top:1.2rem; margin-bottom:0.5rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--orange); margin-bottom:0.6rem;">FIND YOUR SERVER ADDRESS</div>
+        <div class="step-desc" style="margin-bottom:0.6rem;">
+          Watch the console output scroll by. Look for a line that reads exactly like this — it contains your public server IP and port:
+        </div>
+        <div style="background:#0F0D0B; border:1px solid var(--border); padding:0.9rem 1.2rem; font-family:'Share Tech Mono',monospace; font-size:0.88rem; color:#6FCF7A; word-break:break-all;">
+          FakeIP allocation succeeded: <span style="color:#F0C070; font-weight:bold;">169.254.242.140:44112</span>
+        </div>
+        <p style="color:#9A9288; font-size:0.82rem; margin-top:0.5rem;">⚑ Your IP and port will be different from the example above — copy whatever number appears on your screen.</p>
+      </div>
+
+      <!-- Connect command -->
+      <div style="margin-top:1.1rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--orange); margin-bottom:0.6rem;">CONNECT IN-GAME</div>
+        <div class="step-desc" style="margin-bottom:0.6rem;">
+          In TF2, open the developer console (press <strong>~</strong>) and type the connect command using the IP from the line above:
+        </div>
+        <div class="code-block">
+          <code><span class="prompt">&gt;</span> connect 169.254.242.140:44112</code>
+          <button class="copy-btn" onclick="copyCode(this, 'connect 169.254.242.140:44112')">Copy</button>
+        </div>
+        <p style="color:#9A9288; font-size:0.82rem; margin-top:0.5rem;">Replace <code style="font-family:'Share Tech Mono',monospace;color:#F0C070;">169.254.242.140:44112</code> with your actual FakeIP. Share it with your friends so they can join too!</p>
+      </div>
+
+      <!-- SourceMod optional -->
+      <div style="margin-top:1.4rem; background:rgba(83,74,183,0.08); border:1px solid rgba(83,74,183,0.25); border-left:3px solid #7F77DD; padding:1rem 1.1rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:#9B94E0; margin-bottom:0.5rem;">OPTIONAL — SOURCEMOD &amp; METAMOD</div>
+        <p style="color:#B0A8D8; font-size:0.9rem; margin-bottom:0.6rem;">
+          Want admin commands, plugins, and full server control? Re-run <code style="font-family:'Share Tech Mono',monospace;color:#F0C070;font-size:0.88rem;">setup.sh</code> and select the <strong>SourceMod &amp; Metamod install option</strong> from the menu. Once installed, run it <strong>a second time</strong> and paste in your <strong>Steam community profile page URL</strong> when prompted — this grants you admin access on the server.
+        </p>
+        <div class="code-block" style="margin-top:0;">
+          <code><span class="prompt">$</span> ./setup.sh</code>
+          <button class="copy-btn" onclick="copyCode(this, './setup.sh')">Copy</button>
+        </div>
+      </div>
+
+      <div class="tip" style="margin-top:1rem;">
+        <span class="tip-icon">👥</span>
+        <span>Your friends just need to type <code style="font-family:'Share Tech Mono',monospace;color:#F0C070;font-size:0.88rem;">connect &lt;your-fakeip&gt;</code> in their TF2 console — no special software needed on their end!</span>
+      </div>
+    </div>
+
+  </div><!-- /steps -->
+
+  <!-- Done banner -->
+  <div style="margin-top:3rem; background:rgba(74,153,85,0.1); border:1px solid rgba(74,153,85,0.3); border-left:3px solid var(--green); padding:1.4rem 1.6rem; display:flex; gap:1rem; align-items:flex-start;">
+    <span style="font-size:1.6rem;line-height:1;">🎉</span>
+    <div>
+      <div style="font-family:'Black Ops One',sans-serif; font-size:1rem; color:#6FCF7A; letter-spacing:1px; margin-bottom:0.5rem;">YOU'RE IN, MAGGOT</div>
+      <p style="color:#A0C8A6; font-size:0.92rem; margin-bottom:0.8rem;">Your free TF2 server is live and your friends can join from anywhere. No router config, no port forwarding, no hosting fees.</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.6rem; margin-top:0.6rem;">
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(74,153,85,0.2); padding:0.7rem 0.9rem; text-align:center;">
+          <div style="font-family:'Black Ops One',sans-serif; font-size:1.3rem; color:#6FCF7A;">16 GB</div>
+          <div style="font-size:0.75rem; color:#6A9A70; letter-spacing:1px; text-transform:uppercase;">RAM</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(74,153,85,0.2); padding:0.7rem 0.9rem; text-align:center;">
+          <div style="font-family:'Black Ops One',sans-serif; font-size:1.3rem; color:#6FCF7A;">4 Cores</div>
+          <div style="font-size:0.75rem; color:#6A9A70; letter-spacing:1px; text-transform:uppercase;">CPU</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(74,153,85,0.2); padding:0.7rem 0.9rem; text-align:center;">
+          <div style="font-family:'Black Ops One',sans-serif; font-size:1.3rem; color:#6FCF7A;">32 GB</div>
+          <div style="font-size:0.75rem; color:#6A9A70; letter-spacing:1px; text-transform:uppercase;">Storage</div>
+        </div>
+        <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(74,153,85,0.2); padding:0.7rem 0.9rem; text-align:center;">
+          <div style="font-family:'Black Ops One',sans-serif; font-size:1.3rem; color:#6FCF7A;">FREE</div>
+          <div style="font-size:0.75rem; color:#6A9A70; letter-spacing:1px; text-transform:uppercase;">Cost</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick reference -->
+  <div style="margin-top:2.5rem;">
+    <div class="divider"><span>Quick Reference</span></div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:1rem;">
+      <div style="background:var(--bg2); border:1px solid var(--border-dim); padding:1.1rem 1.2rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--orange); margin-bottom:0.6rem;">DOWNLOAD</div>
+        <code style="font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:#F0C070; word-break:break-all;">wget -O setup.sh &lt;url&gt;</code>
+      </div>
+      <div style="background:var(--bg2); border:1px solid var(--border-dim); padding:1.1rem 1.2rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--orange); margin-bottom:0.6rem;">PERMISSIONS</div>
+        <code style="font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:#F0C070;">chmod +x setup.sh</code>
+      </div>
+      <div style="background:var(--bg2); border:1px solid var(--border-dim); padding:1.1rem 1.2rem;">
+        <div style="font-family:'Black Ops One',sans-serif; font-size:0.7rem; letter-spacing:3px; color:var(--orange); margin-bottom:0.6rem;">RUN</div>
+        <code style="font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:#F0C070;">./setup.sh</code>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Not affiliated with Valve or GitHub. For personal / community use only.</p>
+  <p style="margin-top:0.3rem; opacity:0.5;">Mann Co. doesn't endorse this — but Saxton Hale probably would.</p>
+</footer>
+
+<script>
+  function copyCode(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {
+      btn.textContent = 'Error';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
